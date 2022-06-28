@@ -10,12 +10,13 @@
 #include "PluginEditor.h"
 
 //==============================================================================
+//This is the constructor for the PluginEditor class... I think - A
 AttackonPianoAudioProcessorEditor::AttackonPianoAudioProcessorEditor (AttackonPianoAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize (750, 600);
 }
 
 AttackonPianoAudioProcessorEditor::~AttackonPianoAudioProcessorEditor()
@@ -30,7 +31,7 @@ void AttackonPianoAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    g.drawFittedText ("", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void AttackonPianoAudioProcessorEditor::resized()
