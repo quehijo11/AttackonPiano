@@ -12,11 +12,29 @@
 //==============================================================================
 //This is the constructor for the PluginEditor class... I think - A
 AttackonPianoAudioProcessorEditor::AttackonPianoAudioProcessorEditor (AttackonPianoAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+    : AudioProcessorEditor (&p), audioProcessor (p), 
+      keyboardComponent (keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (750, 600);
+    
+    addAndMakeVisible(keyboardComponent);
+    setSize(750, 600);
+
+    addAndMakeVisible(midiInputListLabel);
+    midiInputListLabel.setText("Midi Input", juce::dontSendNotification);
+    midiInputListLabel.attachToComponent(&midiInputList, true);
+
+    auto midiInputs = juce::MidiInput::getAvailableDevices();
+    addAndMakeVisible(midiInputList);
+    midiInputList.setTextWhenNoChoicesAvailable("No MIDI Inputs Enabled");
+
+    juce::StringArray midiInputNames;
+    for (auto input : midiInputs)
+        midiInputNames.add(input.name);
+
+    midiInputList.addItemList(midiInputNames, 1);
+    midiInputList.onChange = [this] {setMidiInput(midiInputList.getSelectedItemIndex());  };
 }
 
 AttackonPianoAudioProcessorEditor::~AttackonPianoAudioProcessorEditor()
@@ -38,4 +56,11 @@ void AttackonPianoAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+}
+
+void AttackonPianoAudioProcessorEditor::setMidiInput(int index) //Incomplete. Come back to this.
+{
+    auto list = juce::MidiInput::getAvailableDevices();
+
+    //deviceManager.removeMidiInputDeviceCallback(list[lastInputIndex].identifier, )
 }

@@ -183,6 +183,23 @@ void AttackonPianoAudioProcessor::setStateInformation (const void* data, int siz
     // whose contents will have been created by the getStateInformation() call.
 }
 
+void AttackonPianoAudioProcessor::loadFile()
+{
+    juce::FileChooser chooser{ "Please load a file" }; //This needs to be replaced with launchASync or something like that.
+
+    if (chooser.browseForFileToOpen()) //Make sure modal loops is permitted to 1 in the pre-processor field in Juce for this to work
+    {
+        auto file = chooser.getResult();
+        mFormatReader = mFormatManager.createReaderFor(file);
+    }
+
+    juce::BigInteger range;
+    range.setRange(0, 128, true);
+
+    mSampler.addSound(new juce::SamplerSound("Sample", *mFormatReader, range, 60, 0.1, 0.1, 10));
+}
+
+
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
