@@ -11,30 +11,12 @@
 
 //==============================================================================
 //This is the constructor for the PluginEditor class... I think - A
-AttackonPianoAudioProcessorEditor::AttackonPianoAudioProcessorEditor (AttackonPianoAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), 
-      keyboardComponent (keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
+AttackonPianoAudioProcessorEditor::AttackonPianoAudioProcessorEditor(AttackonPianoAudioProcessor& p)
+    : AudioProcessorEditor(&p), audioProcessor(p)
 {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-    
-    addAndMakeVisible(keyboardComponent);
+    mLoadButton.onClick = [&]() {audioProcessor.loadFile(); };
+    addAndMakeVisible(mLoadButton);
     setSize(750, 600);
-
-    addAndMakeVisible(midiInputListLabel);
-    midiInputListLabel.setText("Midi Input", juce::dontSendNotification);
-    midiInputListLabel.attachToComponent(&midiInputList, true);
-
-    auto midiInputs = juce::MidiInput::getAvailableDevices();
-    addAndMakeVisible(midiInputList);
-    midiInputList.setTextWhenNoChoicesAvailable("No MIDI Inputs Enabled");
-
-    juce::StringArray midiInputNames;
-    for (auto input : midiInputs)
-        midiInputNames.add(input.name);
-
-    midiInputList.addItemList(midiInputNames, 1);
-    midiInputList.onChange = [this] {setMidiInput(midiInputList.getSelectedItemIndex());  };
 }
 
 AttackonPianoAudioProcessorEditor::~AttackonPianoAudioProcessorEditor()
@@ -54,13 +36,6 @@ void AttackonPianoAudioProcessorEditor::paint (juce::Graphics& g)
 
 void AttackonPianoAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
+    mLoadButton.setBounds(getWidth() / 2 - 50, getHeight() / 2 - 50, 100, 100);
 }
 
-void AttackonPianoAudioProcessorEditor::setMidiInput(int index) //Incomplete. Come back to this.
-{
-    auto list = juce::MidiInput::getAvailableDevices();
-
-    //deviceManager.removeMidiInputDeviceCallback(list[lastInputIndex].identifier, )
-}
