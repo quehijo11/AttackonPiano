@@ -27,7 +27,6 @@ AttackonPianoAudioProcessor::AttackonPianoAudioProcessor()
     for (int i = 0; i < mNumVoices; i++)
     {
         mSampler.addVoice(new juce::SamplerVoice());
-
     }
 }
 
@@ -178,6 +177,8 @@ void AttackonPianoAudioProcessor::setStateInformation (const void* data, int siz
 
 void AttackonPianoAudioProcessor::loadFile()
 {
+    mSampler.clearSounds();
+
     juce::FileChooser chooser{ "Please load a file" }; //This needs to be replaced with launchASync or something like that.
 
     if (chooser.browseForFileToOpen()) //Make sure modal loops is permitted to 1 in the pre-processor field in Juce for this to work
@@ -192,6 +193,29 @@ void AttackonPianoAudioProcessor::loadFile()
     mSampler.addSound(new juce::SamplerSound("Sample", *mFormatReader, range, 60, 0.1, 0.1, 10));
 }
 
+void AttackonPianoAudioProcessor::loadFile(const juce::String& path)
+{
+    mSampler.clearSounds();
+    
+    auto file = juce::File(path);
+    mFormatReader = mFormatManager.createReaderFor(file);
+
+    auto sampleLength = static_cast<int>(mFormatReader->lengthInSamples);
+    mWaveForm.setSize(1, sampleLength);
+    mFormatReader->read(&mWaveForm, 0, sampleLength, 0, true, false);
+
+    auto buffer = mWaveForm.getReadPointer(0);
+
+    for (int sample = 0; sample < mWaveForm.getNumSamples(); ++sample)
+    {
+        DBG(buffer[sample]);
+    }
+
+    juce::BigInteger range;
+    range.setRange(0, 128, true);
+
+    mSampler.addSound(new juce::SamplerSound("Sample", *mFormatReader, range, 60, 0.1, 0.1, 10));
+}
 
 //==============================================================================
 // This creates new instances of the plugin..
