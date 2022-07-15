@@ -60,13 +60,23 @@ public:
     int getNumSamplerSounds() { return mSampler.getNumSounds(); }
     juce::AudioBuffer<float>& getWaveForm() { return mWaveForm; }
 
+    void updateADSR();
+
+    juce::ADSR::Parameters& getADSRParameters() { return mADSRParameters; }
+    juce::AudioProcessorValueTreeState& getAPVTS() { return mAPValueTreeState; }
+
 private:
     juce::Synthesiser mSampler;
     const int mNumVoices{ 3 };
     juce::AudioBuffer<float> mWaveForm;
 
+    juce::ADSR::Parameters mADSRParameters;
+
     juce::AudioFormatManager mFormatManager;
     juce::AudioFormatReader* mFormatReader{ nullptr };
+
+    juce::AudioProcessorValueTreeState mAPValueTreeState;
+    juce::AudioProcessorValueTreeState::ParameterLayout mCreateParameters();
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AttackonPianoAudioProcessor)
 };

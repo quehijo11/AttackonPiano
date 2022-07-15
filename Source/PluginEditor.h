@@ -16,6 +16,7 @@
 */
 class AttackonPianoAudioProcessorEditor  : public juce::AudioProcessorEditor, 
                                            public juce::FileDragAndDropTarget
+
 {
 public:
     AttackonPianoAudioProcessorEditor (AttackonPianoAudioProcessor&);
@@ -31,10 +32,20 @@ public:
 
 private:
     juce::TextButton mLoadButton{ "Load" };
-    std::vector<float> mAudioPoints;
-    bool mShouldBePainting{ false };
-    AttackonPianoAudioProcessor& audioProcessor;
     juce::MidiKeyboardState keyboardState;
     juce::MidiKeyboardComponent keyboardComponent;
+
+    std::vector<float> mAudioPoints;
+    bool mShouldBePainting{ false };
+    juce::Slider mAttackSlider, mDecaySlider, mSustainSlider, mReleaseSlider;
+    juce::Label mAttackLabel, mDecayLabel, mSustainLabel, mReleaseLabel;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mAttackAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mDecayAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mSustainAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mReleaseAttachement;
+
+    AttackonPianoAudioProcessor& audioProcessor;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AttackonPianoAudioProcessorEditor)
 };

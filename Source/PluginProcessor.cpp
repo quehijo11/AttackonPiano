@@ -19,7 +19,7 @@ AttackonPianoAudioProcessor::AttackonPianoAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), mAPValueTreeState(*this, nullptr, "PARAMETERS", mCreateParameters())
 #endif
 {
     mFormatManager.registerBasicFormats();
@@ -101,6 +101,7 @@ void AttackonPianoAudioProcessor::changeProgramName (int index, const juce::Stri
 void AttackonPianoAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     mSampler.setCurrentPlaybackSampleRate(sampleRate);
+    updateADSR();
 }
 
 void AttackonPianoAudioProcessor::releaseResources()
@@ -179,7 +180,7 @@ void AttackonPianoAudioProcessor::loadFile()
 {
     mSampler.clearSounds();
 
-    juce::FileChooser chooser{ "Please load a file" }; //This needs to be replaced with launchASync or something like that.
+    juce::FileChooser chooser{ "Please load a file" }; //eventually this needs to be replaced with launchASync
 
     if (chooser.browseForFileToOpen()) //Make sure modal loops is permitted to 1 in the pre-processor field in Juce for this to work
     {
@@ -215,6 +216,34 @@ void AttackonPianoAudioProcessor::loadFile(const juce::String& path)
     range.setRange(0, 128, true);
 
     mSampler.addSound(new juce::SamplerSound("Sample", *mFormatReader, range, 60, 0.1, 0.1, 10));
+}
+
+void AttackonPianoAudioProcessor::updateADSR()
+{
+    mADSRParameters.attack = mAPValueTreeState.getRawParameterValue("ATTACK")->load();
+    mADSRParameters.decay = mAPValueTreeState.getRawParameterValue("DECAY")->load();
+    mADSRParameters.sustain = mAPValueTreeState.getRawParameterValue("SUSTAIN")->load();
+    mADSRParameters.release = mAPValueTreeState.getRawParameterValue("RELEASE")->load();
+
+    for (int i = 0; i < mSampler.getNumSounds(); ++i)
+    {
+        if (auto sound = dynamic_cast<juce::SamplerSound*>(mSampler.getSound(i).get()))
+        {
+            sound->setEnvelopeParameters(mADSRParameters);
+        }
+    }
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout AttackonPianoAudioProcessor::mCreateParameters()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameters;
+
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 0.0f, 5.0f, 0.0f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", 0.0f, 3.0f, 2.0f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", 0.0f, 1.0f, 1.0f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 0.0f, 5.0f, 2.0f));
+
+    return { parameters.begin(), parameters.end() };
 }
 
 //==============================================================================
