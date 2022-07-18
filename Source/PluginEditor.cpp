@@ -11,11 +11,11 @@
 
 //==============================================================================
 AttackonPianoAudioProcessorEditor::AttackonPianoAudioProcessorEditor(AttackonPianoAudioProcessor& p)
-    : AudioProcessorEditor(&p), audioProcessor(p), keyboardComponent(keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
+    : AudioProcessorEditor(&p), audioProcessor(p), keyboardComponent(p.getKeyboardState(), juce::MidiKeyboardComponent::horizontalKeyboard)
 {
-    mLoadButton.onClick = [&]() {audioProcessor.loadFile(); };
+    //mLoadButton.onClick = [&]() {audioProcessor.loadFile(); };
     addAndMakeVisible(mLoadButton); // displays the Load button. Button is currently covered up
-    addAndMakeVisible(keyboardComponent); //displays the midi keyboard
+    AudioProcessorEditor::addAndMakeVisible(keyboardComponent); //displays the midi keyboard
     
     /*********************************************************************************************
     ADSR Sliders
@@ -163,29 +163,29 @@ void AttackonPianoAudioProcessorEditor::resized()
     mReleaseSlider.setBoundsRelative(sliderStartX + (sliderWidth * 3), sliderStartY, sliderWidth, sliderHeight);
 }
 
-bool AttackonPianoAudioProcessorEditor::isInterestedInFileDrag(const juce::StringArray& files)
-{
-    for (auto file : files)
-    {
-        if (file.contains(".wav") || file.contains(".mp3") || file.contains(".aif"))
-        {
-            return true;
-        }
-    }
-    
-    return false;
-}
+//bool AttackonPianoAudioProcessorEditor::isInterestedInFileDrag(const juce::StringArray& files)
+//{
+//    for (auto file : files)
+//    {
+//        if (file.contains(".wav") || file.contains(".mp3") || file.contains(".aif"))
+//        {
+//            return true;
+//        }
+//    }
+//    
+//    return false;
+//}
 
-void AttackonPianoAudioProcessorEditor::filesDropped(const juce::StringArray& files, int x, int y)
-{
-    for (auto file : files)
-    {
-        if (isInterestedInFileDrag(files))
-        {
-            mShouldBePainting = true;
-            audioProcessor.loadFile(file);
-        }
-    }
-
-    repaint();
-}
+//void AttackonPianoAudioProcessorEditor::filesDropped(const juce::StringArray& files, int x, int y)
+//{
+//    for (auto file : files)
+//    {
+//        if (isInterestedInFileDrag(files))
+//        {
+//            mShouldBePainting = true;
+//            audioProcessor.loadFile(file);
+//        }
+//    }
+//
+//    repaint();
+//}

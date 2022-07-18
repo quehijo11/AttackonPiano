@@ -14,9 +14,8 @@
 //==============================================================================
 /**
 */
-class AttackonPianoAudioProcessorEditor  : public juce::AudioProcessorEditor, 
-                                           public juce::FileDragAndDropTarget
-
+class AttackonPianoAudioProcessorEditor  : public juce::AudioProcessorEditor 
+                                           //public juce::FileDragAndDropTarget
 {
 public:
     AttackonPianoAudioProcessorEditor (AttackonPianoAudioProcessor&);
@@ -25,14 +24,13 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
-    void setMidiInput(int index);
 
-    bool isInterestedInFileDrag(const juce::StringArray& files) override;
-    void filesDropped(const juce::StringArray& files, int x, int y) override;
+    //bool isInterestedInFileDrag(const juce::StringArray& files) override;
+    //void filesDropped(const juce::StringArray& files, int x, int y) override;
 
 private:
     juce::TextButton mLoadButton{ "Load" };
-    juce::MidiKeyboardState keyboardState;
+    //juce::MidiKeyboardState keyboardState;
     juce::MidiKeyboardComponent keyboardComponent;
 
     std::vector<float> mAudioPoints;

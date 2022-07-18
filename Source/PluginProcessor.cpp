@@ -22,12 +22,23 @@ AttackonPianoAudioProcessor::AttackonPianoAudioProcessor()
                        ), mAPValueTreeState(*this, nullptr, "PARAMETERS", mCreateParameters())
 #endif
 {
-    mFormatManager.registerBasicFormats();
+    for (int i = 0; i < 8; ++i)
+        mSampler.addVoice(new juce::SamplerVoice);
+    juce::AudioFormatManager man;
+    man.registerBasicFormats();
+    // obviously this will fail on someone else's system, so ignore
+    std::unique_ptr<juce::AudioFormatReader> reader(man.createReaderFor(juce::File("C:/Users/watso/Desktop/A 4 - Processed_A 4-St.wav")));
+    juce::BigInteger notes;
+    notes.setRange(0, 127, true);
+    mSampler.addSound(new juce::SamplerSound("a", *reader, notes, 60, 0.1, 0.1, 1.0));
+
+    /**************************************************************/
+    /*mFormatManager.registerBasicFormats();
 
     for (int i = 0; i < mNumVoices; i++)
     {
         mSampler.addVoice(new juce::SamplerVoice());
-    }
+    }*/
 }
 
 AttackonPianoAudioProcessor::~AttackonPianoAudioProcessor()
@@ -147,6 +158,8 @@ void AttackonPianoAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+    
+    keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
 
     mSampler.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 }
@@ -176,47 +189,47 @@ void AttackonPianoAudioProcessor::setStateInformation (const void* data, int siz
     // whose contents will have been created by the getStateInformation() call.
 }
 
-void AttackonPianoAudioProcessor::loadFile()
-{
-    mSampler.clearSounds();
-
-    juce::FileChooser chooser{ "Please load a file" }; //eventually this needs to be replaced with launchASync
-
-    if (chooser.browseForFileToOpen()) //Make sure modal loops is permitted to 1 in the pre-processor field in Juce for this to work
-    {
-        auto file = chooser.getResult();
-        mFormatReader = mFormatManager.createReaderFor(file);
-    }
-
-    juce::BigInteger range;
-    range.setRange(0, 128, true);
-
-    mSampler.addSound(new juce::SamplerSound("Sample", *mFormatReader, range, 60, 0.1, 0.1, 10));
-}
-
-void AttackonPianoAudioProcessor::loadFile(const juce::String& path)
-{
-    mSampler.clearSounds();
-    
-    auto file = juce::File(path);
-    mFormatReader = mFormatManager.createReaderFor(file);
-
-    auto sampleLength = static_cast<int>(mFormatReader->lengthInSamples);
-    mWaveForm.setSize(1, sampleLength);
-    mFormatReader->read(&mWaveForm, 0, sampleLength, 0, true, false);
-
-    auto buffer = mWaveForm.getReadPointer(0);
-
-    for (int sample = 0; sample < mWaveForm.getNumSamples(); ++sample)
-    {
-        DBG(buffer[sample]);
-    }
-
-    juce::BigInteger range;
-    range.setRange(0, 128, true);
-
-    mSampler.addSound(new juce::SamplerSound("Sample", *mFormatReader, range, 60, 0.1, 0.1, 10));
-}
+//void AttackonPianoAudioProcessor::loadFile()
+//{
+//    mSampler.clearSounds();
+//
+//    juce::FileChooser chooser{ "Please load a file" }; //eventually this needs to be replaced with launchASync
+//
+//    if (chooser.browseForFileToOpen()) //Make sure modal loops is permitted to 1 in the pre-processor field in Juce for this to work
+//    {
+//        auto file = chooser.getResult();
+//        mFormatReader = mFormatManager.createReaderFor(file);
+//    }
+//
+//    juce::BigInteger range;
+//    range.setRange(0, 128, true);
+//
+//    mSampler.addSound(new juce::SamplerSound("Sample", *mFormatReader, range, 60, 0.1, 0.1, 10));
+//}
+//
+//void AttackonPianoAudioProcessor::loadFile(const juce::String& path)
+//{
+//    mSampler.clearSounds();
+//    
+//    auto file = juce::File(path);
+//    mFormatReader = mFormatManager.createReaderFor(file);
+//
+//    auto sampleLength = static_cast<int>(mFormatReader->lengthInSamples);
+//    mWaveForm.setSize(1, sampleLength);
+//    mFormatReader->read(&mWaveForm, 0, sampleLength, 0, true, false);
+//
+//    auto buffer = mWaveForm.getReadPointer(0);
+//
+//    for (int sample = 0; sample < mWaveForm.getNumSamples(); ++sample)
+//    {
+//        DBG(buffer[sample]);
+//    }
+//
+//    juce::BigInteger range;
+//    range.setRange(0, 128, true);
+//
+//    mSampler.addSound(new juce::SamplerSound("Sample", *mFormatReader, range, 60, 0.1, 0.1, 10));
+//}
 
 void AttackonPianoAudioProcessor::updateADSR()
 {
